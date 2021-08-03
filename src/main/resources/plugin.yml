@@ -1,6 +1,6 @@
 name: KoiEssentials
 main: com.koisv.essentials.Main
-version: 0.2-SNAPSHOT
+version: R1.0-SNAPSHOT
 api-version: 1.17
 depend: [Kotlin]
 load: POSTWORLD

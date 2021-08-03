@@ -2,6 +2,7 @@ package com.koisv.essentials.commands
 
 import com.koisv.essentials.Main
 import hazae41.minecraft.kutils.bukkit.msg
+import hazae41.minecraft.kutils.get
 import io.github.monun.kommand.KommandArgument
 import io.github.monun.kommand.getValue
 import io.github.monun.kommand.node.LiteralNode
@@ -22,6 +23,8 @@ object Spawn {
             executes {
                 getConfig().set("spawn",player.location)
                 player.msg("${player.location.x.toInt()},${player.location.y.toInt()},${player.location.z.toInt()}(으)로 스폰이 설정되었습니다.")
+                getConfig().save(Main.instance.dataFolder["config.yml"])
+                getConfig().load(Main.instance.dataFolder["config.yml"])
             }
         }
         node.then("target" to KommandArgument.player()) {

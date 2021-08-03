@@ -37,8 +37,10 @@ class Events : Listener {
     @EventHandler
     private fun chat(e:AsyncChatEvent) {
         val prefix = chat?.getPlayerPrefix(e.player)
+        val playername = (e.player.displayName() as TextComponent).content()
+        e.isCancelled = true
         for (p in Bukkit.getOnlinePlayers()) {
-            p.sendMessage(e.player.uniqueId,"${prefix}≫ ${(e.message() as TextComponent).content()}")
+            p.sendMessage(e.player.uniqueId,"${prefix?.replace("&","§")}§r$playername ≫ ${(e.message() as TextComponent).content()}")
         }
     }
 
