@@ -1,0 +1,10 @@
+name: KoiEssentials
+main: com.koisv.essentials.Main
+version: 0.2-SNAPSHOT
+api-version: 1.17
+depend: [Kotlin]
+load: POSTWORLD
+libraries:
+  - io.github.monun:kommand:2.4.1
+loadbefore:
+  - Vault
