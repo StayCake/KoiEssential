@@ -1,9 +1,6 @@
 package com.koisv.essentials
 
-import com.koisv.essentials.commands.Back
-import com.koisv.essentials.commands.Openinv
-import com.koisv.essentials.commands.Spawn
-import com.koisv.essentials.commands.Speed
+import com.koisv.essentials.commands.*
 import hazae41.minecraft.kutils.bukkit.msg
 import hazae41.minecraft.kutils.get
 import io.github.monun.kommand.kommand
@@ -58,6 +55,9 @@ class Main : JavaPlugin() {
         }
 
         kommand {
+            register("hat") {
+                Hat.register(this)
+            }
             register("spawn","넴주","스폰") {
                 Spawn.register(this)
             }
