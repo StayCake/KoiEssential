@@ -1,7 +1,7 @@
 name: KoiEssentials
 main: com.koisv.essentials.Main
 version: R1.2-SNAPSHOT
-api-version: 1.20
+api-version: '1.20'
 load: POSTWORLD
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:1.8.21

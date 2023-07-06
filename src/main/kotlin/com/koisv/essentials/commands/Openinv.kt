@@ -1,18 +1,20 @@
 package com.koisv.essentials.commands
 
-import hazae41.minecraft.kutils.bukkit.msg
 import io.github.monun.kommand.KommandArgument
 import io.github.monun.kommand.getValue
-import io.github.monun.kommand.node.LiteralNode
+import io.github.monun.kommand.node.RootNode
+import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 
-object Openinv {
-    fun register(node: LiteralNode) {
+object OpenInv {
+    fun register(node: RootNode) {
         node.executes {
-            if (playerOrNull != null) player.msg("대상을 입력하세요.") else println("콘솔에서 사용 불가능 합니다.")
+            if (playerOrNull != null)
+                player.sendMessage(Component.text("대상을 입력하세요."))
+            else println("콘솔에서 사용 불가능 합니다.")
         }
         node.then("target" to KommandArgument.player()) {
-            requires { playerOrNull != null && hasPermission(4,"admin.openinv") }
+            requires { requirements(playerOrNull) }
             executes { ctx ->
                 val target : Player by ctx
                 player.openInventory(target.inventory)
@@ -20,7 +22,7 @@ object Openinv {
         }
         node.then("ender") {
             then("target" to KommandArgument.player()) {
-                requires { playerOrNull != null && hasPermission(4,"admin.openinv") }
+                requires { requirements(playerOrNull) }
                 executes { ctx ->
                     val target : Player by ctx
                     player.openInventory(target.enderChest)
@@ -28,4 +30,7 @@ object Openinv {
             }
         }
     }
+
+    private fun requirements(player: Player? = null): Boolean =
+        (player != null) && player.hasPermission("admin.openinv")
 }
