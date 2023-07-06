@@ -39,9 +39,10 @@ class Events : Listener {
         val prefix = chat?.getPlayerPrefix(e.player)
         val playerName = (e.player.displayName() as TextComponent).content()
         e.isCancelled = true
+        val colorCode = Regex("&")
         for (p in Bukkit.getOnlinePlayers()) {
             p.sendMessage(Component.text(
-                "${prefix?.replace("&","§")}§r$playerName ≫ ${(e.message() as TextComponent).content()}"
+                "${prefix?.let { colorCode.replace(it, "§") }}§r$playerName ≫ ${(e.message() as TextComponent).content()}"
             ))
         }
     }
