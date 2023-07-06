@@ -1,14 +1,15 @@
 package com.koisv.essentials.commands
 
-import hazae41.minecraft.kutils.bukkit.msg
 import io.github.monun.kommand.KommandArgument
 import io.github.monun.kommand.getValue
-import io.github.monun.kommand.node.LiteralNode
+import io.github.monun.kommand.node.RootNode
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.entity.Player
 import kotlin.math.ceil
 
 object Speed {
-    fun register(node: LiteralNode) {
+    fun register(node: RootNode) {
         node.then("value" to KommandArgument.int(1,10)) {
             requires { hasPermission(4,"admin.speed") }
             executes { ctx ->
@@ -18,12 +19,12 @@ object Speed {
                         true -> {
                             val speed = (value * 0.1).toFloat()
                             player.flySpeed = speed
-                            player.msg("비행 속도가 §e$value §f(으)로 설정되었습니다.")
+                            notice(value, player.isFlying, player)
                         }
                         false -> {
                             val speed = (ceil(value.toFloat() / 2) * 0.2).toFloat()
                             player.walkSpeed = speed
-                            player.msg("걷기 속도가 §e$value §f(으)로 설정되었습니다.")
+                            notice(value, player.isFlying, player)
                         }
                     }
                 } else {
@@ -39,14 +40,12 @@ object Speed {
                         true -> {
                             val speed = (value * 0.1).toFloat()
                             target.flySpeed = speed
-                            target.msg("관리자에 의해 비행 속도가 §e$value §f(으)로 설정되었습니다.")
-                            player.msg("비행 속도가 §e$value §f(으)로 설정되었습니다.")
+                            notice(value, target.isFlying, player, target)
                         }
                         false -> {
                             val speed = (ceil(value.toFloat() / 2) * 0.2).toFloat()
                             target.walkSpeed = speed
-                            target.msg("관리자에 의해 걷기 속도가 §e$value §f(으)로 설정되었습니다.")
-                            player.msg("걷기 속도가 §e$value §f(으)로 설정되었습니다.")
+                            notice(value, target.isFlying, player, target)
                         }
                     }
                 }
@@ -57,8 +56,7 @@ object Speed {
                         val target : Player by ctx
                         val speed = (value * 0.1).toFloat()
                         target.flySpeed = speed
-                        target.msg("관리자에 의해 비행 속도가 §e$value §f(으)로 설정되었습니다.")
-                        player.msg("비행 속도가 §e$value §f(으)로 설정되었습니다.")
+                        notice(value, true, player, target)
                     }
                 }
                 then("walk") {
@@ -68,8 +66,7 @@ object Speed {
                         val target : Player by ctx
                         val speed = (ceil(value.toFloat() / 2) * 0.2).toFloat()
                         target.walkSpeed = speed
-                        target.msg("관리자에 의해 걷기 속도가 §e$value §f(으)로 설정되었습니다.")
-                        player.msg("걷기 속도가 §e$value §f(으)로 설정되었습니다.")
+                        notice(value, false, player, target)
                     }
                 }
             }
@@ -79,7 +76,7 @@ object Speed {
                     val value : Int by ctx
                     val speed = (value * 0.1).toFloat()
                     player.flySpeed = speed
-                    player.msg("비행 속도가 §e$value §f(으)로 설정되었습니다.")
+                    notice(value, true, player)
                 }
             }
             then("walk") {
@@ -88,13 +85,30 @@ object Speed {
                     val value : Int by ctx
                     val speed = (ceil(value.toFloat() / 2) * 0.2).toFloat()
                     player.walkSpeed = speed
-                    player.msg("걷기 속도가 §e$value §f(으)로 설정되었습니다.")
+                    notice(value, false, player)
                 }
             }
         }
         node.requires { hasPermission(4,"admin.speed") }
         node.executes {
-            if (playerOrNull != null) player.msg("값을 입력하세요.") else println("대상을 입력하세요.")
+            if (playerOrNull != null)
+                player.sendMessage(Component.text("값을 입력하세요."))
+            else println("대상을 입력하세요.")
         }
+    }
+
+    private fun notice(value: Int, fly: Boolean, sender: Player, target: Player? = null) {
+        target?.sendMessage(
+            Component.text("관리자에 의해 ${if (fly) "비행" else "걷기"} 속도가 ").append(
+                Component.text("$value ")
+                    .color(TextColor.color(255, 255, 0))
+            ).append(Component.text("(으)로 설정되었습니다."))
+        )
+        sender.sendMessage(
+            Component.text("${if (fly) "비행" else "걷기"} 속도가 ").append(
+                Component.text("$value ")
+                    .color(TextColor.color(255, 255, 0))
+            ).append(Component.text("(으)로 설정되었습니다."))
+        )
     }
 }

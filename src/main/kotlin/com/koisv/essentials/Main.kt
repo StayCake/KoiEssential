@@ -1,9 +1,8 @@
 package com.koisv.essentials
 
 import com.koisv.essentials.commands.*
-import hazae41.minecraft.kutils.bukkit.msg
-import hazae41.minecraft.kutils.get
 import io.github.monun.kommand.kommand
+import net.kyori.adventure.text.Component
 import net.milkbowl.vault.chat.Chat
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration
@@ -19,7 +18,7 @@ class Main : JavaPlugin() {
     companion object {
         lateinit var instance: Main
             private set
-        lateinit var backloc: File
+        lateinit var backLoc: File
             private set
         lateinit var back: YamlConfiguration
             private set
@@ -36,22 +35,22 @@ class Main : JavaPlugin() {
     override fun onEnable() {
 
         if (!setupChat()) {
-            println(String.format("[%s] - Vault가 감지되지 않았습니다!", description.name))
+            println("[$name] - Vault 플러그인이 감지되지 않았습니다!")
             server.pluginManager.disablePlugin(this)
             return
         }
 
-        println(String.format("[%s] - 가동 시작!", description.name))
+        println("[$name] - 가동 시작!")
 
         instance = this
 
         server.pluginManager.registerEvents(Events(), this)
         saveDefaultConfig()
 
-        backloc = dataFolder["back.yml"]
-        back = YamlConfiguration.loadConfiguration(backloc)
-        if (!backloc.canRead()) {
-            back.save(backloc)
+        backLoc = File(dataFolder, "back.yml")
+        back = YamlConfiguration.loadConfiguration(backLoc)
+        if (!backLoc.canRead()) {
+            back.save(backLoc)
         }
 
         kommand {
@@ -65,7 +64,7 @@ class Main : JavaPlugin() {
                 Speed.register(this)
             }
             register("openinv","인벤토리"){
-                Openinv.register(this)
+                OpenInv.register(this)
             }
             register("back"){
                 Back.register(this)
@@ -83,7 +82,7 @@ class Main : JavaPlugin() {
                             메모리 : ${((runtime.totalMemory() - runtime.freeMemory())/(8/1024))} / ${(runtime.maxMemory()/(8/1024))} MB
                         """.trimIndent()
                     if (playerOrNull != null)
-                        player.msg(report)
+                        player.sendMessage(Component.text(report))
                     else
                         println(report)
                 }
@@ -93,11 +92,13 @@ class Main : JavaPlugin() {
                     requires { hasPermission(4,"admin.reload") }
                     executes {
                         reloadConfig()
-                        if (!backloc.canRead()) {
-                            back.save(backloc)
+                        if (!backLoc.canRead()) {
+                            back.save(backLoc)
                         }
-                        back.load(backloc)
-                        if (sender is Player) sender.msg("리로드 완료!") else println("리로드 완료!")
+                        back.load(backLoc)
+                        if (sender is Player)
+                            player.sendMessage(Component.text("리로드 완료!"))
+                        else println("리로드 완료!")
                     }
                 }
             }
@@ -106,6 +107,6 @@ class Main : JavaPlugin() {
 
     override fun onDisable() {
         saveDefaultConfig()
-        println(String.format("[%s] - 가동 중지.", description.name))
+        println("[$name] - 가동 중지.")
     }
 }
