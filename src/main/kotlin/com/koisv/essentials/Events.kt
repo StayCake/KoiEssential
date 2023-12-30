@@ -1,14 +1,15 @@
 package com.koisv.essentials
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent
+import com.koisv.essentials.Main.Companion.back
+import com.koisv.essentials.Main.Companion.backLoc
+import com.koisv.essentials.Main.Companion.instance
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Color
-import org.bukkit.configuration.file.FileConfiguration
-import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockExplodeEvent
@@ -18,21 +19,9 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerTeleportEvent
-import java.io.File
 
 class Events : Listener {
-
-    private fun getBack() : YamlConfiguration {
-        return Main.back
-    }
-
-    private fun getBackLoc() : File {
-        return Main.backLoc
-    }
-
-    private fun getConfig() : FileConfiguration {
-        return Main.instance.config
-    }
+    private val config = instance.config
 
     @EventHandler
     private fun chat(e:AsyncChatEvent) {
@@ -60,7 +49,7 @@ class Events : Listener {
 
     @EventHandler
     private fun respawn(e:PlayerRespawnEvent) {
-        val location = getConfig().getLocation("spawn")
+        val location = config.getLocation("spawn")
         if (location != null && !e.isBedSpawn && !e.isAnchorSpawn) e.respawnLocation = location
     }
 
@@ -79,20 +68,20 @@ class Events : Listener {
     @EventHandler
     private fun backSave(e:PlayerTeleportEvent) {
         if (!e.isCancelled) {
-            getBack().set(e.player.uniqueId.toString(), e.from)
-            getBack().save(getBackLoc())
-            getBack().load(getBackLoc())
+            back.set(e.player.uniqueId.toString(), e.from)
+            back.save(backLoc)
+            back.load(backLoc)
         }
     }
 
     @EventHandler
     private fun blockExplode(e:BlockExplodeEvent) {
-        if (!getConfig().getBoolean("explode")) e.isCancelled = true
+        if (!config.getBoolean("explode")) e.isCancelled = true
     }
 
     @EventHandler
     private fun entityExplode(e:EntityExplodeEvent) {
-        if (!getConfig().getBoolean("explode")) e.isCancelled = true
+        if (!config.getBoolean("explode")) e.isCancelled = true
     }
 
     @EventHandler
@@ -100,7 +89,7 @@ class Events : Listener {
         if (
             (e.cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
             || e.cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)
-            && !getConfig().getBoolean("explode")
+            && !config.getBoolean("explode")
         ) e.isCancelled = true
     }
 }

@@ -1,17 +1,15 @@
 package com.koisv.essentials
 
-import com.koisv.essentials.commands.*
-import io.github.monun.kommand.kommand
-import net.kyori.adventure.text.Component
 import net.milkbowl.vault.chat.Chat
-import org.bukkit.Bukkit
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.entity.Player
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
+import java.util.logging.Logger
 
 var chat: Chat? = null
+
+lateinit var gLogger: Logger
 
 class Main : JavaPlugin() {
 
@@ -27,9 +25,9 @@ class Main : JavaPlugin() {
     private fun setupChat(): Boolean {
         val rsp: RegisteredServiceProvider<Chat> = server.servicesManager.getRegistration(
             Chat::class.java
-        ) ?: return true
+        ) ?: return false
         chat = rsp.provider
-        return chat != null
+        return true
     }
 
     override fun onEnable() {
@@ -43,6 +41,7 @@ class Main : JavaPlugin() {
         println("[$name] - 가동 시작!")
 
         instance = this
+        gLogger = logger
 
         server.pluginManager.registerEvents(Events(), this)
         saveDefaultConfig()
@@ -53,55 +52,11 @@ class Main : JavaPlugin() {
             back.save(backLoc)
         }
 
-        kommand {
-            register("hat") {
-                Hat.register(this)
-            }
-            register("spawn","넴주","스폰") {
-                Spawn.register(this)
-            }
-            register("speed","속도"){
-                Speed.register(this)
-            }
-            register("openinv","인벤토리"){
-                OpenInv.register(this)
-            }
-            register("back"){
-                Back.register(this)
-            }
-            register("mem"){
-                requires { hasPermission(4,"admin.gc") }
-                executes {
-                    val runtime = Runtime.getRuntime()
-                    val report = """
-                            ==========> ${Bukkit.getVersion()} <==========
-                            TPS : ${Bukkit.getTPS()}
-                            접속자 : ${Bukkit.getOnlinePlayers().size} / ${Bukkit.getMaxPlayers()}명
-                            틱 타임 : ${Bukkit.getAverageTickTime()} ms
-                            버킷 : ${Bukkit.getBukkitVersion()}
-                            메모리 : ${((runtime.totalMemory() - runtime.freeMemory())/(8/1024))} / ${(runtime.maxMemory()/(8/1024))} MB
-                        """.trimIndent()
-                    if (playerOrNull != null)
-                        player.sendMessage(Component.text(report))
-                    else
-                        println(report)
-                }
-            }
-            register("ke"){
-                then("reload") {
-                    requires { hasPermission(4,"admin.reload") }
-                    executes {
-                        reloadConfig()
-                        if (!backLoc.canRead()) {
-                            back.save(backLoc)
-                        }
-                        back.load(backLoc)
-                        if (sender is Player)
-                            player.sendMessage(Component.text("리로드 완료!"))
-                        else println("리로드 완료!")
-                    }
-                }
-            }
+        val commands = listOf("back", "hat", "ke", "mem", "openinv", "spawn", "speed")
+
+        commands.forEach {
+            getCommand(it)?.setExecutor(CmdExecutor())
+            getCommand(it)?.tabCompleter = CmdTabMaker()
         }
     }
 

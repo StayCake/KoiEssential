@@ -1,7 +1,10 @@
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "1.9.21"
     id("com.github.johnrengelman.shadow") version "+"
 }
+
+group = "com.koisv"
+version = "R1.3-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -11,9 +14,8 @@ repositories {
 
 dependencies {
     compileOnly(kotlin("stdlib")) // Kotlin
-    compileOnly("io.github.monun:kommand-api:3.1.6")
     compileOnly("com.github.milkbowl:VaultAPI:+")
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT") // Paper Latest
+    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT") // Paper Latest
 }
 
 tasks {
@@ -28,7 +30,6 @@ tasks {
     }
     shadowJar {
         archiveClassifier.set("dist")
-        archiveVersion.set("")
     }
     create<Copy>("dist") {
         from (shadowJar)
