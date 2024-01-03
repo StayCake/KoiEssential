@@ -1,6 +1,9 @@
 package com.koisv.essentials
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
 import net.milkbowl.vault.chat.Chat
+import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
@@ -8,6 +11,9 @@ import java.io.File
 import java.util.logging.Logger
 
 var chat: Chat? = null
+val sysPrefix =
+    Component.text("시스템 ").color(TextColor.fromHexString("#80FF80"))
+        .append(Component.text(">> ").color(TextColor.fromHexString("#B4B4B4")))
 
 lateinit var gLogger: Logger
 
@@ -20,6 +26,12 @@ class Main : JavaPlugin() {
             private set
         lateinit var back: YamlConfiguration
             private set
+
+        fun CommandSender.sendMsg(message: String) =
+            sendMessage(sysPrefix.append(Component.text(message)))
+
+        fun CommandSender.sendMsg(message: String, hex: String) =
+            sendMessage(sysPrefix.append(Component.text(message).color(TextColor.fromHexString("#$hex"))))
     }
 
     private fun setupChat(): Boolean {

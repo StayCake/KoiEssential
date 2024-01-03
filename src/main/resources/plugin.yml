@@ -19,16 +19,12 @@ commands:
   ke:
     usage: /<command> reload
     description: "리로드용"
-    permission-message: "시스템 >> 권한이 부족합니다."
-    permission: "kes.reload"
   mem:
     usage: /<command>
     description: "메모리"
-    permission-message: "시스템 >> 권한이 부족합니다."
-    permission: "kes.gc"
   openinv:
     aliases: ["인벤토리"]
-    usage: /<command> <player>
+    usage: /<command>
     description: "누구세요?"
   spawn:
     aliases: ["넴주", "spawn", "tmvhs"]
@@ -44,9 +40,12 @@ permissions:
     default: op
     description: "ALLL"
     children:
+      - kes.spawn
       - kes.spawn.set
+      - kes.spawn.others
       - kes.back.others
-      - kes.reload
+      - kes.control
+      - kes.control.reload
       - kes.gc
       - kes.openinv
       - kes.openinv.*
@@ -59,6 +58,9 @@ permissions:
   kes.spawn.set:
     default: op
     description: "Spawn SET"
+  kes.spawn.others:
+    default: op
+    description: "GO SPAWN"
 
   kes.back:
     default: not op
@@ -71,7 +73,10 @@ permissions:
     default: not op
     description: "UwU"
 
-  kes.reload:
+  kes.control:
+    default: op
+    description: "CONTROL UP"
+  kes.control.reload:
     default: op
     description: "RELOADING"
 
