@@ -195,42 +195,94 @@ class CmdExecutor: CommandExecutor {
             }
 
             "speed" -> {
-                val rawSpeed = args?.getOrNull(0)?.toIntOrNull()
-                val target = instance
-                    .server.onlinePlayers.find {
-                        it.name == (args?.getOrNull(1) ?: return@find false)
-                    }
-                val isFly =
-                    when (args?.getOrNull(2)) {
-                        "walk", "w" -> false
-                        "fly", "f" -> true
-                        null -> if (sender is Player) sender.isFlying else false
-                        else ->
-                            if (args[3].isNotBlank())
-                                when (args[3]) {
-                                    "walk", "w" -> false
-                                    "fly", "f" -> true
-                                    else -> false
+                if (args == null || args.isEmpty()) {
+                    sender.sendMessage(Component.text("/speed [속도] [w(alk)/f(ly)/대상] [w(alk)/f(ly)]"))
+                    return true
+                }
+                val rawSpeed = args[0].toIntOrNull() ?: kotlin.run {
+                    sender.sendMessage("[!] 올바른 속도 값을 입력해주세요.")
+                    return true
+                }
+
+                val applySpeed = (ceil(rawSpeed.toFloat() / 2) * 0.2).toFloat()
+                val target =
+                    if (args.count() == 1) null
+                    else instance.server.onlinePlayers.find { it.name == args[1] }
+
+                when (args.count()) {
+                    1 -> if (sender is Player) {
+                        if (sender.isFlying) sender.flySpeed = applySpeed else sender.walkSpeed = applySpeed
+                        sender.speedNotice(rawSpeed, sender.isFlying)
+                    } else gLogger.info("[!] 서버 사용시 대상 지정이 필요합니다.")
+
+                    2 -> {
+                        when {
+                            sender is Player -> {
+                                when {
+                                    args[1] == "f" || args[1] == "fly" -> {
+                                        sender.flySpeed = applySpeed
+                                        sender.speedNotice(rawSpeed, true)
+                                    }
+
+                                    args[1] == "w" || args[1] == "walk" -> {
+                                        sender.walkSpeed = applySpeed
+                                        sender.speedNotice(rawSpeed, false)
+                                    }
+
+                                    !sender.hasPermission("kes.speed.others") ->
+                                        sender.sendMessage(Component.text("[!] 권한이 부족합니다."))
+
+                                    target == null ->
+                                        sender.sendMessage(Component.text("[!] 대상을 찾을 수 없습니다."))
+
+                                    else -> {
+                                        if (target.isFlying) target.flySpeed = applySpeed else target.walkSpeed = applySpeed
+                                        sender.speedNotice(rawSpeed, target.isFlying, target)
+                                    }
                                 }
-                            else target?.isFlying ?: false
+                            }
+
+                            !sender.hasPermission("kes.speed.others") ->
+                                sender.sendMessage(Component.text("[!] 권한이 부족합니다."))
+
+                            target == null ->
+                                sender.sendMessage(Component.text("[!] 대상을 찾을 수 없습니다."))
+
+                            else -> {
+                                if (target.isFlying) target.flySpeed = applySpeed else target.walkSpeed = applySpeed
+                                sender.speedNotice(rawSpeed, target.isFlying, target)
+                            }
+                        }
                     }
 
-                if (rawSpeed != null) {
-                    when {
-                        target != null -> {
-                            val applySpeed = (ceil(rawSpeed.toFloat() / 2) * 0.2).toFloat()
-                            if (isFly) target.flySpeed = applySpeed else target.walkSpeed = applySpeed
-                            sender.speedNotice(rawSpeed, isFly, target)
+                    3 -> {
+                        if (target == null)
+                            sender.sendMessage(Component.text("[!] 대상을 찾을 수 없습니다."))
+
+                        else if (!sender.hasPermission("kes.speed.others"))
+                            sender.sendMessage(Component.text("[!] 권한이 부족합니다."))
+
+                        else when (args[2]) {
+                            "f", "fly" -> {
+                                target.flySpeed = applySpeed
+                                sender.speedNotice(rawSpeed, true, target)
+                            }
+                            "w", "walk" -> {
+                                target.walkSpeed = applySpeed
+                                sender.speedNotice(rawSpeed, false, target)
+                            }
+                            else -> sender.sendMessage(
+                                Component.text("[!] 잘못된 값입니다 - 값은 [w]alk 또는 [f]ly 이어야 합니다.")
+                            )
                         }
-                        sender is Player -> {
-                            val applySpeed = (ceil(rawSpeed.toFloat() / 2) * 0.2).toFloat()
-                            if (isFly) sender.flySpeed = applySpeed else sender.walkSpeed = applySpeed
-                            sender.speedNotice(rawSpeed, isFly)
-                        }
-                        else -> gLogger.info("[!] 서버 사용시 대상 지정이 필요합니다.")
+                    }
+
+                    else -> {
+                        sender.sendMessage(
+                            Component.text("[!] 너무 많은 값을 입력했습니다 - ${args.count()}/3 개")
+                        )
                     }
                 }
-                else sender.sendMessage(Component.text("/speed [속도] [w(alk)/f(ly)/대상] [w(alk)/f(ly)]"))
             }
 
             else -> return false
